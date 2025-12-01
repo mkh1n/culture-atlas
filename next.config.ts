@@ -1,7 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: '/tmdb/:path*',
+        destination: 'https://api.themoviedb.org/:path*',
+      },
+    ];
+  },
+
+  experimental: {
+    proxyTimeout: 120000,
+  },
+  images: {
+    remotePatterns: [
+      { hostname: 'image.tmdb.org' },
+      { hostname: 'images.tmdb.org' },
+    ],
+  },
+  
 };
 
 export default nextConfig;
