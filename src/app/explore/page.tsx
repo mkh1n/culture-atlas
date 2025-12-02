@@ -50,7 +50,7 @@ function SearchPage() {
       return <p>Ошибка: {error}</p>;
     }
 
-    if (!data || data.results.length === 0) {
+    if (!data) {
       return (
         <p>Фильмы не найдены: Попробуйте другой запрос</p>
       );
