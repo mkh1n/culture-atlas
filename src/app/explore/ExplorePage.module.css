@@ -1,0 +1,104 @@
+.searchSettings {
+  gap: 20px;
+  align-items: center;
+  display: flex;
+  justify-content: end;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.sortSelect {
+  background-color: #181719;
+  border: 1.2px solid #2e2e2e;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  gap: 50px;
+  color: white;
+    font-family: inherit;
+
+}
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.filterHolder {
+  display: flex;
+  align-items: center;
+}
+.filterHolder label{
+  font-size: 15px;
+}
+.filterHolder input {
+  height: 20px;
+  width: 20px;
+  margin-right: 5px;
+}
+
+.filterHolder input[type="checkbox"] {
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  background: #2e2e2e;
+  border: 1px solid #ccc;
+}
+.filterHolder input[type="checkbox"]:checked {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  background-image: url("/check.svg");
+  filter: invert(1);
+}
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: center;
+  margin-top: 40px;
+  gap: 5px;
+}
+
+.pageItem {
+  margin: 0 2px;
+}
+
+.pageLink {
+  display: block;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #0070f3;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.pageLink:hover {
+  background-color: #f0f0f0;
+  border-color: #0070f3;
+}
+
+.active .pageLink {
+  background-color: #0070f3;
+  color: white;
+  border-color: #0070f3;
+}
+
+.disabled .pageLink {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.disabled .pageLink:hover {
+  background-color: transparent;
+  border-color: #ddd;
+}
+
+.break {
+  padding: 8px 16px;
+}

@@ -1,7 +1,8 @@
 .movieCard {
   display: flex;
   flex-direction: column;
-  max-width: 30%;
+  position: relative;
+  width: 350px;
   background-color: #181719;
   border: 1.2px solid #2e2e2e;
   height: 670px;
@@ -9,7 +10,43 @@
   padding: 20px;
   box-sizing: border-box;
   box-shadow: 0px 0px 9px 0px rgb(39 39 39);
+  overflow: hidden;
+}
+.movieCard::after {
+  content: "";
+  background: linear-gradient(#2e2e2e00 0%, #141414 100%);
+  width: 120%;
+  height: 100px;
+  position: absolute;
+  bottom: 0;
+  transform: translate(-5%, 0px);
+}
+.posterHolder {
+  position: relative;
+  aspect-ratio: 1/1.47;
+  width: 100%;
 }
 .movieCardPoster {
   border-radius: 10px;
+  aspect-ratio: 1/1.47;
+  background-color: #2e2e2e;
+  transition: 0.3s;
+  width: 100%;
+}
+.ratingBadge {
+  padding: 5px 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-weight: 600;
+}
+.ratingBadge.gold {
+  background-image: linear-gradient(160deg, #eacc7f 16%, #ad9c72 64%);
+}
+.ratingBadge.green {
+  background-color: #3bb33b;
+}
+
+.ratingBadge.gray {
+  background-color: gray;
 }

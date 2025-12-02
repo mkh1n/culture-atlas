@@ -1,67 +1,60 @@
-// Один фильм/сериал из результатов поиска
-export interface TMDbMovie {
+// Базовый интерфейс для всех типов
+interface TMDBBaseItem {
+  id: number;
+  media_type: 'movie' | 'tv' | 'person';
   adult: boolean;
+  popularity: number;
+  original_language: string;
+}
+
+// Фильм
+export interface TMDbMovie extends TMDBBaseItem {
+  media_type: 'movie';
   backdrop_path: string | null;
   genre_ids: number[];
-  id: number;
-  original_language: string;
   original_title: string;
   overview: string;
-  popularity: number;
   poster_path: string | null;
-  release_date: string;        // формат YYYY-MM-DD или пустая строка
-  title: string;               // локализованное название (в твоём случае русское)
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
-
-// Ответ на запрос /search/movie
-export interface TMDbSearchResponse {
-  page: number;
-  results: TMDbMovie[];
-  total_pages: number;
-  total_results: number;
-}
-
-// Если хочешь тип для полной информации о фильме (через /movie/{id})
-export interface TMDbMovieDetails {
-  adult: boolean;
-  backdrop_path: string | null;
-  belongs_to_collection: any | null;
-  budget: number;
-  genres: { id: number; name: string }[];
-  homepage: string | null;
-  id: number;
-  imdb_id: string | null;
-  origin_country: string[];
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string | null;
-  production_companies: {
-    id: number;
-    logo_path: string | null;
-    name: string;
-    origin_country: string;
-  }[];
-  production_countries: {
-    iso_3166_1: string;
-    name: string;
-  }[];
   release_date: string;
-  revenue: number;
-  runtime: number | null;
-  spoken_languages: {
-    english_name: string;
-    iso_639_1: string;
-    name: string;
-  }[];
-  status: string;
-  tagline: string | null;
   title: string;
   video: boolean;
   vote_average: number;
   vote_count: number;
+}
+
+// Сериал
+export interface TMDbTV extends TMDBBaseItem {
+  media_type: 'tv';
+  backdrop_path: string | null;
+  genre_ids: number[];
+  original_name: string;
+  overview: string;
+  poster_path: string | null;
+  first_air_date: string;
+  name: string;
+  vote_average: number;
+  vote_count: number;
+  origin_country: string[];
+}
+
+// Актер/Человек
+export interface TMDbPerson extends TMDBBaseItem {
+  media_type: 'person';
+  name: string;
+  original_name: string;
+  gender: number;
+  known_for_department: string;
+  profile_path: string | null;
+  known_for: Array<TMDbMovie | TMDbTV>;
+}
+
+// Объединенный тип для результатов поиска
+export type TMDBMediaItem = TMDbMovie | TMDbTV | TMDbPerson;
+
+// Ответ на поиск
+export interface TMDbSearchResponse {
+  page: number;
+  results: TMDBMediaItem[];
+  total_pages: number;
+  total_results: number;
 }

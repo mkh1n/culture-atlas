@@ -3,6 +3,7 @@ import MovieCard from "../MovieCard/MovieCard";
 import { TMDbMovie } from "@/types/movie";
 
 export default function MoviesGrid({ movies }) {
+  console.log(movies)
   return (
     <div className={styles.moviesGrid}>
       {movies?.map((movie: TMDbMovie) => (

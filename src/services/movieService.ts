@@ -1,24 +1,32 @@
-// lib/tmdb.ts
-export default async function searchMovies(query: string, page: number = 1) {
-  console.log('searchMovies called with:', { query, page });
+export type SearchFilters = {
+  movies?: boolean;
+  tv?: boolean;
+  people?: boolean;
+};
+
+export type SortOption = 'popularity.desc' | 'release_date.desc' | 'release_date.asc';
+
+export default async function searchMovies(
+  query: string, 
+  page: number = 1, 
+  sortBy: SortOption = 'popularity.desc',
+  filters: SearchFilters = { movies: true, tv: true, people: false }
+) {  
+  const params = new URLSearchParams({
+    query: encodeURIComponent(query),
+    page: page.toString(),
+    sort_by: sortBy,
+    movies: filters.movies !== false ? 'true' : 'false',
+    tv: filters.tv !== false ? 'true' : 'false',
+    people: filters.people !== false  ? 'true' : 'false'
+  });
   
   try {
     const response = await fetch(
-      `/api/movies?query=${encodeURIComponent(query)}&page=${page}`,
-      {
-        next: { 
-          revalidate: 60 * 60,
-          tags: ['movies', query]
-        }
-      }
-    );
+      `/api/movies?${params.toString()}`,
+    );  
     
-    console.log('API route response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error: ${response.status} - ${errorText.slice(0, 100)}`);
-    }
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
     
     return response.json();
   } catch (error) {
