@@ -1,6 +1,6 @@
 import styles from "./MoviesGrid.module.css";
 import MovieCard from "../MovieCard/MovieCard";
-import { TMDBMediaItem } from "@/types/movie";
+import { TMDBMediaItem } from "@/types/tmdb";
 
 interface MoviesGridProps {
   movies: TMDBMediaItem[];

@@ -1,7 +1,6 @@
-// app/explore/page.tsx
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import movieService, { SearchFilters } from "@/services/movieService";
@@ -11,7 +10,37 @@ import ReactPaginate from "react-paginate";
 
 import styles from "./ExplorePage.module.css";
 
-export default function SearchPage() {
+type SortOption = 
+  | "popularity.desc" 
+  | "popularity.asc" 
+  | "vote_average.desc" 
+  | "vote_average.asc" 
+  | "primary_release_date.desc" 
+  | "primary_release_date.asc"
+  | "first_air_date.desc"
+  | "first_air_date.asc"
+  | "revenue.desc"
+  | "revenue.asc";
+
+// Ключ для localStorage
+const SEARCH_STORAGE_KEY = 'explore_search_state';
+
+// Функции для работы с localStorage
+const saveSearchState = (state: any) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(state));
+  }
+};
+
+const loadSearchState = () => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(SEARCH_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  }
+  return null;
+};
+
+export default function ExplorePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,27 +49,44 @@ export default function SearchPage() {
   const urlMovies = searchParams.get("movies") !== "false";
   const urlTV = searchParams.get("tv") !== "false";
   const urlPeople = searchParams.get("people") === "true";
+  const urlSort = searchParams.get("sort") as SortOption || "popularity.desc";
 
-  const [rawQuery, setRawQuery] = useState(urlQuery);
+  // Загружаем сохраненное состояние при инициализации
+  const [rawQuery, setRawQuery] = useState(() => {
+    const saved = loadSearchState();
+    return saved?.query || urlQuery || "";
+  });
+  
   const [debouncedQuery] = useDebounce(rawQuery, 400);
   const [currentPage, setCurrentPage] = useState(urlPage);
   
-  // Состояние для фильтров
   const [filters, setFilters] = useState<SearchFilters>({
     movies: urlMovies,
     tv: urlTV,
     people: urlPeople
   });
 
+  const [sortBy, setSortBy] = useState<SortOption>(urlSort);
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const query = debouncedQuery.trim();
 
+  // Сохраняем состояние при каждом изменении
+  useEffect(() => {
+    saveSearchState({
+      query: rawQuery,
+      filters,
+      sortBy,
+      page: currentPage
+    });
+  }, [rawQuery, filters, sortBy, currentPage]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await movieService(query, currentPage, filters);
+      const res = await movieService(query, currentPage, filters, sortBy);
       setData(res);
     } catch (err) {
       console.error(err);
@@ -48,7 +94,7 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, currentPage, filters]);
+  }, [query, currentPage, filters, sortBy]);
 
   useEffect(() => {
     fetchData();
@@ -58,26 +104,27 @@ export default function SearchPage() {
     if (query) params.set("q", query);
     if (currentPage > 1) params.set("page", currentPage.toString());
     
-    // Добавляем фильтры в URL
     if (!filters.movies) params.set("movies", "false");
     if (!filters.tv) params.set("tv", "false");
     if (filters.people) params.set("people", "true");
+    
+    if (sortBy !== "popularity.desc") params.set("sort", sortBy);
 
-    const newUrl = params.toString() ? `?${params.toString()}` : "/explore";
+    const newUrl = params.toString() ? `/explore?${params.toString()}` : "/explore";
     router.replace(newUrl, { scroll: false });
-  }, [query, currentPage, filters, fetchData, router]);
+  }, [query, currentPage, filters, sortBy, fetchData, router]);
 
-  // Сбрасываем страницу при изменении запроса или фильтров
   useEffect(() => {
     const queryChanged = query !== urlQuery;
     const moviesChanged = filters.movies !== urlMovies;
     const tvChanged = filters.tv !== urlTV;
     const peopleChanged = filters.people !== urlPeople;
+    const sortChanged = sortBy !== urlSort;
 
-    if (queryChanged || moviesChanged || tvChanged || peopleChanged) {
+    if (queryChanged || moviesChanged || tvChanged || peopleChanged || sortChanged) {
       setCurrentPage(1);
     }
-  }, [query, filters, urlQuery, urlMovies, urlTV, urlPeople]);
+  }, [query, filters, sortBy, urlQuery, urlMovies, urlTV, urlPeople, urlSort]);
 
   const handleSearch = (value: string) => {
     setRawQuery(value);
@@ -90,12 +137,26 @@ export default function SearchPage() {
     }));
   };
 
+  const handleSortChange = (value: SortOption) => {
+    setSortBy(value);
+  };
+
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
 
-  // Проверяем, выбраны ли хоть какие-то медиа-типы
   const hasMediaSelected = filters.movies || filters.tv || filters.people;
+
+  const sortOptions = [
+    { value: "popularity.desc", label: "По популярности (убыв.)" },
+    { value: "popularity.asc", label: "По популярности (возр.)" },
+    { value: "vote_average.desc", label: "По рейтингу (убыв.)" },
+    { value: "vote_average.asc", label: "По рейтингу (возр.)" },
+    { value: "primary_release_date.desc", label: "По дате релиза (новые)" },
+    { value: "primary_release_date.asc", label: "По дате релиза (старые)" },
+    { value: "first_air_date.desc", label: "По дате выхода сериала (новые)" },
+    { value: "first_air_date.asc", label: "По дате выхода сериала (старые)" },
+  ];
 
   return (
     <div className={styles.container}>
@@ -134,7 +195,19 @@ export default function SearchPage() {
               <label htmlFor="people">Люди</label>
             </div>
           </div>
-          {/* Убираем селект сортировки */}
+
+            <select 
+              id="sort"
+              value={sortBy}
+              onChange={(e) => handleSortChange(e.target.value as SortOption)}
+              className={styles.sortSelect}
+            >
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
         </div>
       </div>
 
@@ -150,6 +223,7 @@ export default function SearchPage() {
         <>
           <div className={styles.infoSection}>
             <p>Найдено: {data.total_results?.toLocaleString() || 0}</p>
+            <p>Сортировка: {sortOptions.find(o => o.value === sortBy)?.label}</p>
           </div>
 
           <MoviesGrid movies={data.results || []} />
