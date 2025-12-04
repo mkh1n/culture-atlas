@@ -27,15 +27,12 @@ const movieService = async (
     movies: filters.movies.toString(),
     tv: filters.tv.toString(),
     people: filters.people.toString(),
+    sort: sortBy // Всегда добавляем сортировку
   });
 
-  // Добавляем сортировку только если есть запрос
   if (query) {
     params.set('query', query);
   }
-  
-  // Всегда добавляем sort параметр
-  params.set('sort', sortBy);
 
   const url = `/api/movies?${params.toString()}`;
   
@@ -50,5 +47,4 @@ const movieService = async (
     throw error;
   }
 };
-
 export default movieService;

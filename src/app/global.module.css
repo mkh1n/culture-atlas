@@ -1,0 +1,24 @@
+html {
+  background-color: black;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+body{
+  margin: 0;
+  padding: 0;
+  padding-bottom: 100px;
+}
+.container{
+  padding: 0 100px;
+}
+@media (max-width: 1200px) {
+ .container{
+  padding: 0 50px;
+}
+}
+@media (max-width: 784px) {
+ .container{
+  padding: 0 0px;
+}
+}

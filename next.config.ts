@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: 'image.tmdb.org' },
       { hostname: 'images.tmdb.org' },
+            { hostname: 'proxy-tmdb-weld.vercel.app' },
+
     ],
   },
   

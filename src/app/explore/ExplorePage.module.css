@@ -15,6 +15,8 @@
   display: flex;
   color: white;
     font-family: inherit;
+    cursor: pointer;
+        width: 240px;
 
 }
 .filters {
@@ -25,6 +27,7 @@
 .filterHolder {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 .filterHolder label{
   font-size: 15px;
@@ -33,6 +36,8 @@
   height: 20px;
   width: 20px;
   margin-right: 5px;
+  cursor: pointer;
+
 }
 
 .filterHolder input[type="checkbox"] {
@@ -52,6 +57,24 @@
   height: 25px;
   background-image: url("/check.svg");
   filter: invert(1);
+}
+.clearButton{
+ background-color: #181719;
+  border: 1.2px solid #2e2e2e;
+  padding: 5px;
+  border-radius: 10px;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+  display: flex
+;
+    align-items: center;
+}
+.clearButtonImage{
+  height: 20px;
+  filter: invert(1);
+}
+.clearButton:hover, .filterHolder:hover, .sortSelect:hover{
+  filter: brightness(1.4);
 }
 .pagination {
   display: flex;

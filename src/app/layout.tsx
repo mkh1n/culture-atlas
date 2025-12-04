@@ -1,7 +1,7 @@
 "use client";
 
 import { IBM_Plex_Mono } from "next/font/google";
-import "./global.css";
+import styles from "./global.module.css";
 import NavigationBlock from "@/components/NavigationBlock/NavigationBlock";
 
 const IBMPlexMono = IBM_Plex_Mono({
@@ -15,8 +15,10 @@ export default function RootLayout({
   return (
     <html className={IBMPlexMono.className}>
       <body>
-        {children}
-        <NavigationBlock></NavigationBlock>
+        <div className={styles.container}>
+          {children}
+          <NavigationBlock></NavigationBlock>
+        </div>
       </body>
     </html>
   );
