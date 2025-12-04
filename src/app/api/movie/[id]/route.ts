@@ -2,9 +2,9 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>  }
 ) {
-  const id = params.id;
+  const { id } = await params;
   const { searchParams } = new URL(request.url);
   const appendToResponse = searchParams.get("append") || "credits,videos,similar";
   

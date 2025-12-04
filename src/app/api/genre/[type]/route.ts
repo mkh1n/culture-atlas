@@ -2,9 +2,10 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params:  Promise<{ type: string }> }
 ) {
-  const type = params.type; // 'movie' или 'tv'
+    const { type } = await params;
+
   const { searchParams } = new URL(request.url);
   const genreId = searchParams.get("id");
   
