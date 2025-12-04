@@ -2,25 +2,26 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = params.id;
+  const { id } = await params;
   const { searchParams } = new URL(request.url);
-  const appendToResponse = searchParams.get("append") || "credits,videos,similar";
-  
+  const appendToResponse =
+    searchParams.get("append") || "credits,videos,similar";
+
   const proxyBase = "https://tmdb-proxy-orpin.vercel.app";
 
   try {
     const url = `${proxyBase}/tv/${id}?append_to_response=${appendToResponse}&language=ru-RU`;
-    
+
     console.log("Fetching TV details:", url);
-    
+
     const res = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.TMDB_BEARER_TOKEN}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
       },
-      next: { revalidate: 3600 }
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
@@ -36,7 +37,7 @@ export async function GET(
     return Response.json(
       {
         error: "Failed to fetch TV details",
-        message: error instanceof Error ? error.message : "Unknown error"
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

@@ -40,20 +40,19 @@ export default function PersonDetailPage() {
 
     try {
       const numericId = parseInt(id, 10);
-      
+
       // Получаем данные персоны и её фильмографию
       const [personDetails, movieCredits, tvCredits] = await Promise.all([
         personService.getDetails(numericId),
         personService.getMovieCredits(numericId),
-        personService.getTVCredits(numericId)
+        personService.getTVCredits(numericId),
       ]);
-      
+
       setPerson({
         ...personDetails,
         movie_credits: movieCredits,
-        tv_credits: tvCredits
+        tv_credits: tvCredits,
       });
-      
     } catch (err: any) {
       console.error("Error fetching person:", err);
       setError(err.message || "Ошибка при загрузке данных актера");
@@ -120,7 +119,7 @@ export default function PersonDetailPage() {
           ← Назад
         </button>
       </div>
-      
+
       <div className={styles.content}>
         <div className={styles.mainInfo}>
           {person.profile_path && (
@@ -146,7 +145,8 @@ export default function PersonDetailPage() {
               )}
               {person.birthday && (
                 <span className={styles.metaItem}>
-                  Дата рождения: {new Date(person.birthday).toLocaleDateString()}
+                  Дата рождения:{" "}
+                  {new Date(person.birthday).toLocaleDateString()}
                 </span>
               )}
               {person.deathday && (
@@ -176,8 +176,8 @@ export default function PersonDetailPage() {
             <h2>Фильмы</h2>
             <div className={styles.creditsGrid}>
               {person.movie_credits.cast
-                .sort((a: any, b: any) => 
-                  (b.popularity || 0) - (a.popularity || 0)
+                .sort(
+                  (a: any, b: any) => (b.popularity || 0) - (a.popularity || 0)
                 )
                 .slice(0, 10)
                 .map((movie: any) => (
@@ -197,7 +197,9 @@ export default function PersonDetailPage() {
                     )}
                     <p className={styles.creditTitle}>{movie.title}</p>
                     {movie.character && (
-                      <p className={styles.creditRole}>в роли: {movie.character}</p>
+                      <p className={styles.creditRole}>
+                        в роли: {movie.character}
+                      </p>
                     )}
                   </Link>
                 ))}
@@ -211,8 +213,8 @@ export default function PersonDetailPage() {
             <h2>Сериалы</h2>
             <div className={styles.creditsGrid}>
               {person.tv_credits.cast
-                .sort((a: any, b: any) => 
-                  (b.popularity || 0) - (a.popularity || 0)
+                .sort(
+                  (a: any, b: any) => (b.popularity || 0) - (a.popularity || 0)
                 )
                 .slice(0, 10)
                 .map((tv: any) => (
@@ -232,7 +234,9 @@ export default function PersonDetailPage() {
                     )}
                     <p className={styles.creditTitle}>{tv.name}</p>
                     {tv.character && (
-                      <p className={styles.creditRole}>в роли: {tv.character}</p>
+                      <p className={styles.creditRole}>
+                        в роли: {tv.character}
+                      </p>
                     )}
                   </Link>
                 ))}
