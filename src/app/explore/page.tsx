@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from 'react';
+
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
@@ -204,6 +206,7 @@ export default function ExplorePage() {
     "По популярности (убыв.)";
 
   return (
+     <Suspense>
     <div className={styles.container}>
       <div className={styles.header}>
         <SearchInput onInput={handleSearch} initialValue={rawQuery} />
@@ -317,5 +320,6 @@ export default function ExplorePage() {
         </div>
       )}
     </div>
+    </Suspense>
   );
 }
