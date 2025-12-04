@@ -206,7 +206,7 @@ export default function ExplorePage() {
     "По популярности (убыв.)";
 
   return (
-     <Suspense>
+     <Suspense fallback={<div>Loading...</div>}>
     <div className={styles.container}>
       <div className={styles.header}>
         <SearchInput onInput={handleSearch} initialValue={rawQuery} />
