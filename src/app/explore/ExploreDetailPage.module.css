@@ -22,14 +22,14 @@
   cursor: pointer;
   font-size: 16px;
   transition: background 0.3s;
-  
 }
 
 .backButton:hover {
   opacity: 0.9;
 }
 
-.loading, .error {
+.loading,
+.error {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -81,11 +81,16 @@
   margin-bottom: 40px;
 }
 
-.poster, .profile {
+.posterHolder,
+.profile {
+  flex-direction: column;
+  display: flex;
+  gap: 20px;
   flex-shrink: 0;
 }
 
-.posterImage, .profileImage {
+.posterImage,
+.profileImage {
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
@@ -164,21 +169,29 @@
 }
 
 /* Стили для актерского состава */
-.castGrid, .similarGrid, .creditsGrid {
+.castGrid,
+.similarGrid,
+.creditsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 20px;
 }
 
-.castItem, .similarItem, .creditItem {
+.castItem,
+.similarItem,
+.creditItem {
   transition: transform 0.3s;
 }
 
-.castItem:hover, .similarItem:hover, .creditItem:hover {
+.castItem:hover,
+.similarItem:hover,
+.creditItem:hover {
   transform: translateY(-5px);
 }
 
-.castImage, .similarImage, .creditImage {
+.castImage,
+.similarImage,
+.creditImage {
   width: 100%;
   height: auto;
   border-radius: 10px;
@@ -186,7 +199,7 @@
 }
 
 .noImage {
-    aspect-ratio: 4 / 6;
+  aspect-ratio: 4 / 6;
   background: #333;
   border-radius: 10px;
   display: flex;
@@ -207,7 +220,8 @@
   color: #aaa;
 }
 
-.similarTitle, .creditTitle {
+.similarTitle,
+.creditTitle {
   margin-top: 10px;
   font-size: 0.9rem;
   color: white;
@@ -219,11 +233,40 @@
   color: #aaa;
   text-align: center;
 }
+.watchLink {
+  position: relative;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+.rutube {
+  background-color: #00a1e7;
+}
+.yandex{
+   background-color: #F8604A;
+}
+.google{
+  background-color: #34A853
+}
+.rutube::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border-radius: 100%;
+  background-color: #ed143b;
+}
+.watchLink:hover {
+  filter: brightness(0.8);
+}
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .backdrop{
-        height: 50vh;
+  .backdrop {
+    height: 50vh;
     margin-bottom: -40vh;
   }
   .mainInfo {
@@ -231,7 +274,8 @@
     gap: 20px;
   }
 
-  .poster, .profile {
+  .posterHolder,
+  .profile {
     align-self: center;
   }
 
@@ -239,7 +283,9 @@
     font-size: 2rem;
   }
 
-  .castGrid, .similarGrid, .creditsGrid {
+  .castGrid,
+  .similarGrid,
+  .creditsGrid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }

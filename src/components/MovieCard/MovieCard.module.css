@@ -49,3 +49,9 @@
 .ratingBadge.gray {
   background-color: gray;
 }
+@media (max-width: 784px){
+  .movieCard{
+    width: 100%;
+    padding: 30px;
+  }
+}

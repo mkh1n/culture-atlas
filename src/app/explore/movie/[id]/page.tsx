@@ -8,6 +8,7 @@ import { movieService } from "@/services/tmdbService";
 import { MovieDetails, Movie, Credits } from "@/types/tmdb";
 import styles from "../../ExploreDetailPage.module.css";
 import { getYearFromDate, getImageUrl } from "@/services/itemDetail";
+import { generateSearchLinks, SearchLink } from "@/services/findWatchLinks";
 
 export default function MovieDetailPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function MovieDetailPage() {
   const [similar, setSimilar] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [watchLinks, setWatchLinks] = useState<SearchLink[] | null>(null);
 
   const fetchMovieData = useCallback(async () => {
     if (!id) return;
@@ -37,7 +39,8 @@ export default function MovieDetailPage() {
       setMovie(movieDetails as MovieDetails);
       setCredits(movieDetails.credits || null);
       setSimilar(movieDetails.similar?.results || []);
-      
+      const links = await generateSearchLinks(movieDetails);
+      setWatchLinks(links);
     } catch (err: any) {
       console.error("Error fetching movie:", err);
       setError(err.message || "Ошибка при загрузке данных фильма");
@@ -124,7 +127,7 @@ export default function MovieDetailPage() {
         {/* Постер и основная информация */}
         <div className={styles.mainInfo}>
           {movie.poster_path && (
-            <div className={styles.poster}>
+            <div className={styles.posterHolder}>
               <Image
                 src={posterUrl}
                 alt={movie.title}
@@ -132,6 +135,14 @@ export default function MovieDetailPage() {
                 height={450}
                 className={styles.posterImage}
               />
+               {watchLinks.map((link)=><a
+               key={link.url}
+                href={link.url}
+                target="_blank"
+                className={`${styles.watchLink} ${styles[link.engine]}`}
+              >
+                Искать в {link.engine}
+              </a>)}
             </div>
           )}
 

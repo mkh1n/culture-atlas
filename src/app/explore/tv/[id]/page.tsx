@@ -8,6 +8,7 @@ import { TVShowDetails, TVShow, Credits } from "@/types/tmdb";
 import styles from "../../ExploreDetailPage.module.css";
 import { getYearFromDate, getImageUrl } from "@/services/itemDetail";
 import Link from "next/link";
+import { generateSearchLinks, SearchLink } from "@/services/findWatchLinks";
 
 export default function TVDetailPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function TVDetailPage() {
   const [credits, setCredits] = useState<Credits | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [watchLinks, setWatchLinks] = useState<SearchLink[] | null>(null);
 
   const fetchTVData = useCallback(async () => {
     if (!id) return;
@@ -29,12 +31,12 @@ export default function TVDetailPage() {
 
     try {
       const numericId = parseInt(id, 10);
-      
       // Получаем все данные сериала
       const tvDetails = await tvService.getDetailsWithAppend(numericId);
       setTVShow(tvDetails as TVShowDetails);
       setCredits(tvDetails.credits || null);
-      
+      const links = await generateSearchLinks(tvDetails);
+      setWatchLinks(links);
     } catch (err: any) {
       console.error("Error fetching TV show:", err);
       setError(err.message || "Ошибка при загрузке данных сериала");
@@ -102,7 +104,7 @@ export default function TVDetailPage() {
           ← Назад
         </button>
       </div>
-      
+
       {/* Бэкдроп */}
       {tvShow.backdrop_path && (
         <div className={styles.backdrop}>
@@ -120,7 +122,7 @@ export default function TVDetailPage() {
       <div className={styles.content}>
         <div className={styles.mainInfo}>
           {tvShow.poster_path && (
-            <div className={styles.poster}>
+            <div className={styles.posterHolder}>
               <Image
                 src={posterUrl}
                 alt={tvShow.name}
@@ -128,6 +130,16 @@ export default function TVDetailPage() {
                 height={450}
                 className={styles.posterImage}
               />
+              {watchLinks.map((link) => (
+                <a
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  className={`${styles.watchLink} ${styles[link.engine]}`}
+                >
+                  Искать в {link.engine}
+                </a>
+              ))}
             </div>
           )}
 
@@ -190,7 +202,7 @@ export default function TVDetailPage() {
             <h2>Актерский состав</h2>
             <div className={styles.castGrid}>
               {credits.cast.slice(0, 10).map((actor) => (
-                 <Link
+                <Link
                   key={actor.id}
                   href={`/explore/person/${actor.id}`}
                   className={styles.castItem}
