@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import styles from "./NavigationBlock.module.css";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface Tab {
@@ -22,6 +21,14 @@ const NavigationTabs = () => {
     { id: "/explore", label: "explore" },
     { id: "/me", label: "me" },
   ];
+
+  // Функция для определения активной вкладки
+  const isTabActive = (tabId: string) => {
+    if (tabId === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(tabId);
+  };
 
   useEffect(() => {
     updateIndicator();
@@ -52,10 +59,12 @@ const NavigationTabs = () => {
     }, 10);
 
     return () => clearTimeout(timer);
-  }, []);
-  const hendleClick = (path) => {
+  }, [pathname]);
+
+  const handleClick = (path: string) => {
     router.push(path);
   };
+
   return (
     <nav className={styles.headerNav}>
       <div ref={navRef} className={styles.navContainer}>
@@ -63,9 +72,9 @@ const NavigationTabs = () => {
           <button
             key={tab.id}
             className={`${styles.navLink} ${
-              pathname === tab.id ? styles.navLinkActive : ""
+              isTabActive(tab.id) ? styles.navLinkActive : ""
             }`}
-            onClick={() => hendleClick(tab.id)}
+            onClick={() => handleClick(tab.id)}
           >
             {tab.label}
           </button>

@@ -1,3 +1,4 @@
+.exploreContainer{}
 .searchSettings {
   gap: 20px;
   align-items: center;
@@ -123,4 +124,10 @@
 
 .break {
   padding: 8px 16px;
+}
+
+@media (max-width: 784px){
+.exploreContainer{
+  padding: 0 20px;
+}
 }

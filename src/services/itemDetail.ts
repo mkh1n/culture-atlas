@@ -14,9 +14,9 @@ export const getImageUrl = (
     // Определяем placeholder на основе типа
     if (isPerson) {
       // Для персон можно использовать общий placeholder
-      return "/person-placeholder.jpg";
+      return "/images/person-placeholder.jpg";
     }
-    return "/poster-placeholder.jpg";
+    return "/images/poster-placeholder.jpg";
   }
 
   // Если изображение доступно

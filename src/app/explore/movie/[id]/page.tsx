@@ -9,6 +9,10 @@ import { MovieDetails, Movie, Credits } from "@/types/tmdb";
 import styles from "../../ExploreDetailPage.module.css";
 import { getYearFromDate, getImageUrl } from "@/services/itemDetail";
 import { generateSearchLinks, SearchLink } from "@/services/findWatchLinks";
+import StarRating from "@/components/StarRating/StarRaing";
+import NoteBlock from "@/components/NoteBlock/NoteBlock";
+import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
+import WatchedButton from "@/components/WatchedButton/WatchedButton";
 
 export default function MovieDetailPage() {
   const router = useRouter();
@@ -33,7 +37,7 @@ export default function MovieDetailPage() {
 
     try {
       const numericId = parseInt(id, 10);
-      
+
       // Получаем все данные фильма
       const movieDetails = await movieService.getDetailsWithAppend(numericId);
       setMovie(movieDetails as MovieDetails);
@@ -108,7 +112,7 @@ export default function MovieDetailPage() {
           ← Назад
         </button>
       </div>
-      
+
       {/* Бэкдроп */}
       {movie.backdrop_path && (
         <div className={styles.backdrop}>
@@ -135,14 +139,50 @@ export default function MovieDetailPage() {
                 height={450}
                 className={styles.posterImage}
               />
-               {watchLinks.map((link)=><a
-               key={link.url}
-                href={link.url}
-                target="_blank"
-                className={`${styles.watchLink} ${styles[link.engine]}`}
-              >
-                Искать в {link.engine}
-              </a>)}
+              <div className={styles.watchLinkBlock}>
+                <p>Искать в</p>
+                <div className={styles.watchLinkHolder}>
+                  {watchLinks.map((link) => (
+                    <a
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      className={`${styles.watchLink} ${styles[link.engine]}`}
+                    >
+                      <Image
+                        src={`/icons/${link.engine}.svg`}
+                        alt={link.engine}
+                        width={40}
+                        height={40}
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.interactiveButtonHolder}>
+                <FavoriteButton
+                  mediaId={movie.id}
+                  mediaType="movie"
+                  mediaData={movie}
+                  showLabel={false}
+                  size="medium"
+                />
+                <WatchedButton
+                  mediaId={movie.id}
+                  mediaType="movie"
+                  mediaData={movie}
+                  showLabel={false}
+                  size="medium"
+                />
+              </div>
+
+              <StarRating
+                mediaId={movie.id}
+                mediaType="movie"
+                mediaData={movie}
+                showLabel={true}
+              />
+              <NoteBlock mediaId={movie.id} mediaType="movie" />
             </div>
           )}
 

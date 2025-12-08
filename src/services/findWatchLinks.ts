@@ -7,9 +7,8 @@ export interface MediaDetails {
 }
 
 export interface SearchLink {
-  title: string;
   url: string;
-  engine: 'google' | 'yandex' | 'rutube';
+  engine: 'duckduckgo' | 'yandex' | 'rutube';
   type: 'search' | 'direct';
 }
 
@@ -36,21 +35,18 @@ export function generateSearchLinks(details: MediaDetails): SearchLink[] {
   // Формируем ссылки
   return [
         {
-      title: `Смотреть "${title}" на Rutube`,
       url: `https://rutube.ru/search/?query=${encodeURIComponent(mediaTypeText + ' ' + title)}`,
       engine: 'rutube',
       type: 'direct'
     },
     {
-      title: `Найти "${title}" в Яндексе`,
       url: `https://yandex.ru/search/?text=${encodeURIComponent(searchQuery)}&lr=213`,
       engine: 'yandex',
       type: 'search'
     },
     {
-      title: `Найти "${title}" в Google`,
-      url: `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`,
-      engine: 'google',
+      url: `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`,
+      engine: 'duckduckgo',
       type: 'search'
     },
     

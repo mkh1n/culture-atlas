@@ -9,6 +9,10 @@ import styles from "../../ExploreDetailPage.module.css";
 import { getYearFromDate, getImageUrl } from "@/services/itemDetail";
 import Link from "next/link";
 import { generateSearchLinks, SearchLink } from "@/services/findWatchLinks";
+import StarRating from "@/components/StarRating/StarRaing";
+import NoteBlock from "@/components/NoteBlock/NoteBlock";
+import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
+import WatchedButton from "@/components/WatchedButton/WatchedButton";
 
 export default function TVDetailPage() {
   const router = useRouter();
@@ -130,16 +134,50 @@ export default function TVDetailPage() {
                 height={450}
                 className={styles.posterImage}
               />
-              {watchLinks.map((link) => (
-                <a
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  className={`${styles.watchLink} ${styles[link.engine]}`}
-                >
-                  Искать в {link.engine}
-                </a>
-              ))}
+              <div className={styles.watchLinkBlock}>
+                <p>Искать в</p>
+                <div className={styles.watchLinkHolder}>
+                  {watchLinks.map((link) => (
+                    <a
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      className={`${styles.watchLink} ${styles[link.engine]}`}
+                    >
+                      <Image
+                        src={`/icons/${link.engine}.svg`}
+                        alt={link.engine}
+                        width={40}
+                        height={40}
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.interactiveButtonHolder}>
+                <FavoriteButton
+                  mediaId={tvShow.id}
+                  mediaType="tv"
+                  mediaData={tvShow}
+                  showLabel={false}
+                  size="medium"
+                />
+                <WatchedButton
+                  mediaId={tvShow.id}
+                  mediaType="tv"
+                  mediaData={tvShow}
+                  showLabel={false}
+                  size="medium"
+                />
+              </div>
+
+              <StarRating
+                mediaId={tvShow.id}
+                mediaType="tv"
+                mediaData={tvShow}
+                showLabel={true}
+              />
+              <NoteBlock mediaId={tvShow.id} mediaType="tv" />
             </div>
           )}
 

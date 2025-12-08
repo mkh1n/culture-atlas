@@ -110,13 +110,12 @@ export default function MovieCard({ movie }: MovieCardProps) {
       if (movie.media_type === "person") {
         // gender: 1 = female, 2 = male
         if (movie.gender === 2 || movie.gender === 0) {
-          return "/male-placeholder.png";
+          return "/images/male-placeholder.png";
         } else {
-          return "/female-placeholder.png";
+          return "/images/female-placeholder.png";
         }
-        return "/person-placeholder.jpg";
       }
-      return "/poster-placeholder.jpg";
+      return "/images/poster-placeholder.jpg";
     }
 
     // Если изображение доступно

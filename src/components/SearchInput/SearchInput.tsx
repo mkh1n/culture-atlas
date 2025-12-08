@@ -6,7 +6,7 @@ export default function SearchInput({onInput, initialValue}) {
   return (
     <div className={styles.inputHolder}>
         <Image
-        src="/search.svg"
+        src="/icons/search.svg"
         alt="Описание изображения"
         height={30}
         width={30}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense } from "react";
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -207,117 +207,119 @@ export default function ExplorePageContent() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <SearchInput onInput={handleSearch} initialValue={rawQuery} />
-        <div className={styles.controlsRow}>
-          <div className={styles.searchSettings}>
-            <div className={styles.filters}>
-              <div className={styles.filterHolder}>
-                <input
-                  type="checkbox"
-                  id="movies"
-                  name="movies"
-                  checked={filters.movies}
-                  onChange={() => handleFilterChange("movies")}
-                />
-                <label htmlFor="movies">Фильмы</label>
+      <div className={styles.exploreContainer}>
+        <div className={styles.header}>
+          <SearchInput onInput={handleSearch} initialValue={rawQuery} />
+          <div className={styles.controlsRow}>
+            <div className={styles.searchSettings}>
+              <div className={styles.filters}>
+                <div className={styles.filterHolder}>
+                  <input
+                    type="checkbox"
+                    id="movies"
+                    name="movies"
+                    checked={filters.movies}
+                    onChange={() => handleFilterChange("movies")}
+                  />
+                  <label htmlFor="movies">Фильмы</label>
+                </div>
+                <div className={styles.filterHolder}>
+                  <input
+                    type="checkbox"
+                    id="tv"
+                    name="tv"
+                    checked={filters.tv}
+                    onChange={() => handleFilterChange("tv")}
+                  />
+                  <label htmlFor="tv">Сериалы</label>
+                </div>
+                <div className={styles.filterHolder}>
+                  <input
+                    type="checkbox"
+                    id="people"
+                    name="people"
+                    checked={filters.people}
+                    onChange={() => handleFilterChange("people")}
+                  />
+                  <label htmlFor="people">Люди</label>
+                </div>
               </div>
-              <div className={styles.filterHolder}>
-                <input
-                  type="checkbox"
-                  id="tv"
-                  name="tv"
-                  checked={filters.tv}
-                  onChange={() => handleFilterChange("tv")}
+
+              <select
+                id="sort"
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value as SortOption)}
+                className={styles.sortSelect}
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleClearFilters}
+                className={styles.clearButton}
+              >
+                <Image
+                  src="/icons/clear.svg"
+                  alt="Описание изображения"
+                  height={30}
+                  width={30}
+                  className={styles.clearButtonImage}
                 />
-                <label htmlFor="tv">Сериалы</label>
-              </div>
-              <div className={styles.filterHolder}>
-                <input
-                  type="checkbox"
-                  id="people"
-                  name="people"
-                  checked={filters.people}
-                  onChange={() => handleFilterChange("people")}
-                />
-                <label htmlFor="people">Люди</label>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {loading && <div className={styles.loading}>Загрузка...</div>}
+
+        {!loading && !hasMediaSelected && (
+          <div className={styles.warning}>
+            Выберите хотя бы один тип контента (фильмы, сериалы или люди)
+          </div>
+        )}
+
+        {!loading && data && hasMediaSelected && (
+          <>
+            <div className={styles.infoSection}>
+              <div className={styles.infoRow}>
+                <p className={styles.infoItem}>
+                  <strong>Найдено:</strong>{" "}
+                  {data.total_results?.toLocaleString() || 0}
+                </p>
+                <p className={styles.infoItem}>
+                  <strong>Страница:</strong> {currentPage} из{" "}
+                  {Math.min(data.total_pages || 1, 500)}
+                </p>
               </div>
             </div>
 
-            <select
-              id="sort"
-              value={sortBy}
-              onChange={(e) => handleSortChange(e.target.value as SortOption)}
-              className={styles.sortSelect}
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleClearFilters}
-              className={styles.clearButton}
-            >
-              <Image
-                src="/clear.svg"
-                alt="Описание изображения"
-                height={30}
-                width={30}
-                className={styles.clearButtonImage}
+            <MoviesGrid movies={data.results || []} />
+
+            {data.total_pages > 1 && (
+              <ReactPaginate
+                previousLabel="‹"
+                nextLabel="›"
+                pageCount={Math.min(data.total_pages || 1, 500)}
+                forcePage={Math.min(currentPage - 1, 499)}
+                onPageChange={handlePageChange}
+                containerClassName={styles.pagination}
+                activeClassName={styles.active}
+                pageRangeDisplayed={5}
+                marginPagesDisplayed={2}
               />
-            </button>
+            )}
+          </>
+        )}
+
+        {!loading && !data && hasMediaSelected && (
+          <div className={styles.noResults}>
+            {query ? "Ничего не найдено" : "Не удалось загрузить данные"}
           </div>
-        </div>
+        )}
       </div>
-
-      {loading && <div className={styles.loading}>Загрузка...</div>}
-
-      {!loading && !hasMediaSelected && (
-        <div className={styles.warning}>
-          Выберите хотя бы один тип контента (фильмы, сериалы или люди)
-        </div>
-      )}
-
-      {!loading && data && hasMediaSelected && (
-        <>
-          <div className={styles.infoSection}>
-            <div className={styles.infoRow}>
-              <p className={styles.infoItem}>
-                <strong>Найдено:</strong>{" "}
-                {data.total_results?.toLocaleString() || 0}
-              </p>
-              <p className={styles.infoItem}>
-                <strong>Страница:</strong> {currentPage} из{" "}
-                {Math.min(data.total_pages || 1, 500)}
-              </p>
-            </div>
-          </div>
-
-          <MoviesGrid movies={data.results || []} />
-
-          {data.total_pages > 1 && (
-            <ReactPaginate
-              previousLabel="‹"
-              nextLabel="›"
-              pageCount={Math.min(data.total_pages || 1, 500)}
-              forcePage={Math.min(currentPage - 1, 499)}
-              onPageChange={handlePageChange}
-              containerClassName={styles.pagination}
-              activeClassName={styles.active}
-              pageRangeDisplayed={5}
-              marginPagesDisplayed={2}
-            />
-          )}
-        </>
-      )}
-
-      {!loading && !data && hasMediaSelected && (
-        <div className={styles.noResults}>
-          {query ? "Ничего не найдено" : "Не удалось загрузить данные"}
-        </div>
-      )}
     </div>
   );
 }

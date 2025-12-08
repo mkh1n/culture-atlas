@@ -1,6 +1,5 @@
 .container {
   min-height: 100vh;
-  background-color: #0f0f0f;
   color: white;
 }
 
@@ -59,12 +58,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.7) 50%,
-    #0f0f0f 100%
-  );
+    background: linear-gradient(#0000 0%, #000000b3 59%, #000 97%);
 }
 
 .content {
@@ -87,6 +81,7 @@
   display: flex;
   gap: 20px;
   flex-shrink: 0;
+  flex: 1;
 }
 
 .posterImage,
@@ -233,36 +228,43 @@
   color: #aaa;
   text-align: center;
 }
+.watchLinkBlock{
+  display: flex;
+  gap: 10px;
+}
+.watchLinkHolder{
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
 .watchLink {
   position: relative;
   color: white;
-  padding: 10px 20px;
+  padding: 5px;
   border-radius: 10px;
   text-align: center;
+  transition: 0.2s;
 }
-.rutube {
-  background-color: #00a1e7;
+.rutube img{
+  height: 36px;
+  width: 36px;
 }
-.yandex{
-   background-color: #F8604A;
-}
-.google{
-  background-color: #34A853
-}
-.rutube::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  border-radius: 100%;
-  background-color: #ed143b;
-}
-.watchLink:hover {
-  filter: brightness(0.8);
+.yandex img{
+  height: 43px;
+  width: 43px;
 }
 
+.watchLink:hover {
+  filter: brightness(0.7);
+  transform: scale(1.1);
+}
+.interactiveButtonHolder{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 20px;
+
+}
 /* Адаптивность */
 @media (max-width: 768px) {
   .backdrop {
