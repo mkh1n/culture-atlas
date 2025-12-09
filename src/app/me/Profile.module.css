@@ -183,13 +183,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--input-background, #f8f9fa);
-
+  background-color: #181719;
+  border: 1.2px solid #2e2e2e;
+  color: white;
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 20px;
 }
-
+.searchBox img{
+  filter: invert(1);
+}
 .searchInput {
   flex: 1;
   border: none;
@@ -220,7 +223,7 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 6px;
-  color: var(--text-primary, #212529);
+  color: white;
   font-size: 14px;
   cursor: pointer;
   outline: none;
@@ -363,8 +366,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  
 }
+.mediaTitle a{
+    color:  #007bff;
 
+}
 .ratingBadge {
   background: var(--warning-color, #ffc107);
   color: var(--text-primary, #212529);

@@ -625,6 +625,7 @@ export default function ProfilePage() {
                     className={`${styles.mediaTypeLabel} ${styles[item.type]}`}
                   >
                     {getTypeLabel(item.type)}
+                    <br></br>
                   </span>
                   {item.updatedAt && (
                     <span className={styles.updateDate}>

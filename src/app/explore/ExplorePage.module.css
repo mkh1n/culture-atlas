@@ -24,58 +24,99 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-.filterHolder {
+}.searchSettings {
   display: flex;
   align-items: center;
-  cursor: pointer;
-}
-.filterHolder label{
-  font-size: 15px;
-}
-.filterHolder input {
-  height: 20px;
-  width: 20px;
-  margin-right: 5px;
-  cursor: pointer;
-
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.filterHolder input[type="checkbox"] {
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 5px;
-  background: #2e2e2e;
-  border: 1px solid #ccc;
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
-.filterHolder input[type="checkbox"]:checked {
-  appearance: none;
-  background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 25px;
-  height: 25px;
-  background-image: url("/check.svg");
-  filter: invert(1);
-}
-.clearButton{
- background-color: #181719;
-  border: 1.2px solid #2e2e2e;
-  padding: 5px;
-  border-radius: 10px;
-  aspect-ratio: 1/1;
+
+.filterButton {
+  background-color: #2d3748;
+  color: #cbd5e0;
+  border: 1px solid #4b5563;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
   cursor: pointer;
-  display: flex
-;
-    align-items: center;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  outline: none;
+  white-space: nowrap;
 }
-.clearButtonImage{
-  height: 20px;
+
+.filterButton:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #fff;
+}
+
+.filterButtonActive {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.filterButtonActive:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.sortSelect {
+  background-color: #2d3748;
+  color: #cbd5e0;
+  border: 1px solid #4b5563;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.sortSelect:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #fff;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.clearButton {
+  background-color: #2d3748;
+  border: 1px solid #4b5563;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+ 
+}
+.clearButton  img{
+ filter: invert(1);
+  opacity: 0.7;
+}
+
+.clearButton:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+}
+
+.clearButtonImage {
   filter: invert(1);
-}
-.clearButton:hover, .filterHolder:hover, .sortSelect:hover{
-  filter: brightness(1.4);
 }
 .pagination {
   display: flex;
@@ -124,6 +165,161 @@
 
 .break {
   padding: 8px 16px;
+}
+
+.genresSection {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #181719;
+  border-radius: 8px;
+  border: 1px solid #2d3748;
+}
+
+.genresHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.genresTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.clearGenresButton {
+  background: none;
+  border: 1px solid #4b5563;
+  color: #9ca3af;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearGenresButton:hover {
+  background-color: #4b5563;
+  color: #fff;
+}
+
+/* Контейнер жанров - одна строка по умолчанию */
+.genresContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  max-height: 38px; /* Одна строка */
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* Когда раскрыто - показываем все */
+.genresContainer.genresExpanded {
+  max-height: 500px; /* Достаточно для всех жанров */
+}
+
+.genreTag {
+  background-color: #2d3748;
+  color: #cbd5e0;
+  border: 1px solid #4b5563;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  outline: none;
+  white-space: nowrap;
+  height: 32px;
+}
+
+.genreTag:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.genreTagActive {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.genreTagActive:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.genreRemove {
+  font-size: 16px;
+  margin-left: 4px;
+  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.genresLoading {
+  color: #9ca3af;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Кнопка "Показать все/Скрыть" */
+.showMoreButton {
+  width: 100%;
+  background: none;
+  border: 1px solid #4b5563;
+  color: #6b7280;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.showMoreButton:hover {
+  background-color: #2d3748;
+  color: #9ca3af;
+}
+
+/* Выбранные жанры */
+.selectedGenres {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #2d3748;
+  margin-top: 12px;
+}
+
+.selectedGenresLabel {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-right: 4px;
+}
+
+.selectedGenreBadge {
+  background-color: #1e40af;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (max-width: 784px){

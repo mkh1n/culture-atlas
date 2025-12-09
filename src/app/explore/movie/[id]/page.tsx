@@ -13,6 +13,7 @@ import StarRating from "@/components/StarRating/StarRaing";
 import NoteBlock from "@/components/NoteBlock/NoteBlock";
 import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
 import WatchedButton from "@/components/WatchedButton/WatchedButton";
+import WatchlistButton from "@/components/WatchlistButton/WatchlistButton";
 
 export default function MovieDetailPage() {
   const router = useRouter();
@@ -168,6 +169,13 @@ export default function MovieDetailPage() {
                   size="medium"
                 />
                 <WatchedButton
+                  mediaId={movie.id}
+                  mediaType="movie"
+                  mediaData={movie}
+                  showLabel={false}
+                  size="medium"
+                />
+                 <WatchlistButton
                   mediaId={movie.id}
                   mediaType="movie"
                   mediaData={movie}

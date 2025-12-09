@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense } from "react";
-
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
@@ -28,6 +27,12 @@ type SortOption =
 // Ключ для localStorage
 const SEARCH_STORAGE_KEY = "explore_search_state";
 
+// Тип для жанра
+interface Genre {
+  id: number;
+  name: string;
+}
+
 // Функции для работы с localStorage
 const saveSearchState = (state: any) => {
   if (typeof window !== "undefined") {
@@ -53,11 +58,11 @@ export default function ExplorePageContent() {
   const urlTV = searchParams.get("tv") !== "false";
   const urlPeople = searchParams.get("people") === "true";
   const urlSort = (searchParams.get("sort") as SortOption) || "popularity.desc";
+  const urlGenres = searchParams.get("genres") || "";
 
   // Загружаем сохраненное состояние при инициализации
   const [rawQuery, setRawQuery] = useState(() => {
     const saved = loadSearchState();
-    // Приоритет: URL параметры > сохраненное состояние
     return urlQuery || saved?.query || "";
   });
 
@@ -65,49 +70,121 @@ export default function ExplorePageContent() {
 
   const [currentPage, setCurrentPage] = useState(() => {
     const saved = loadSearchState();
-    // Приоритет: URL параметры > сохраненное состояние
     return urlPage > 1 ? urlPage : saved?.page || 1;
   });
 
   const [filters, setFilters] = useState<SearchFilters>(() => {
     const saved = loadSearchState();
-    // Приоритет: URL параметры > сохраненное состояние > значения по умолчанию
     return {
       movies:
         urlMovies ||
         (saved?.filters?.movies !== undefined ? saved.filters.movies : true),
       tv: urlTV || (saved?.filters?.tv !== undefined ? saved.filters.tv : true),
       people: urlPeople || saved?.filters?.people || false,
+      genres: urlGenres
+        ? urlGenres
+            .split(",")
+            .map((id) => parseInt(id))
+            .filter((id) => !isNaN(id))
+        : saved?.genres || [],
     };
+  });
+
+  const [selectedGenres, setSelectedGenres] = useState<number[]>(() => {
+    const saved = loadSearchState();
+    if (urlGenres) {
+      return urlGenres
+        .split(",")
+        .map((id) => parseInt(id))
+        .filter((id) => !isNaN(id));
+    }
+    return saved?.genres || [];
   });
 
   const [sortBy, setSortBy] = useState<SortOption>(() => {
     const saved = loadSearchState();
-    // Приоритет: URL параметры > сохраненное состояние > значение по умолчанию
     return urlSort !== "popularity.desc"
       ? urlSort
       : saved?.sortBy || "popularity.desc";
   });
 
+  const [movieGenres, setMovieGenres] = useState<Genre[]>([]);
+  const [tvGenres, setTvGenres] = useState<Genre[]>([]);
+  const [genresLoading, setGenresLoading] = useState(true);
+  const [showAllGenres, setShowAllGenres] = useState(false);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const query = debouncedQuery.trim();
 
+  // Загружаем жанры при монтировании
+  useEffect(() => {
+    const loadGenres = async () => {
+      setGenresLoading(true);
+      try {
+        // Загружаем жанры фильмов из JSON
+        const movieResponse = await fetch("/data/movie-genres-ru.json");
+        const movieData = await movieResponse.json();
+        setMovieGenres(movieData.genres || []);
+
+        // Загружаем жанры сериалов из JSON
+        const tvResponse = await fetch("/data/tv-genres-ru.json");
+        const tvData = await tvResponse.json();
+        setTvGenres(tvData.genres || []);
+      } catch (error) {
+        console.error("Error loading genres:", error);
+        // Fallback данные если JSON не загрузился
+        setMovieGenres([
+          { id: 28, name: "Боевик" },
+          { id: 35, name: "Комедия" },
+          { id: 18, name: "Драма" },
+          { id: 878, name: "Фантастика" },
+          { id: 14, name: "Фэнтези" },
+          { id: 27, name: "Ужасы" },
+          { id: 10749, name: "Мелодрама" },
+          { id: 53, name: "Триллер" },
+        ]);
+        setTvGenres([
+          { id: 10759, name: "Боевик и Приключения" },
+          { id: 35, name: "Комедия" },
+          { id: 18, name: "Драма" },
+          { id: 10765, name: "Фантастика и Фэнтези" },
+        ]);
+      } finally {
+        setGenresLoading(false);
+      }
+    };
+
+    loadGenres();
+  }, []);
+
   // Сохраняем полное состояние при каждом изменении
   useEffect(() => {
     saveSearchState({
       query: rawQuery,
-      filters,
+      filters: {
+        movies: filters.movies,
+        tv: filters.tv,
+        people: filters.people,
+      },
       sortBy,
       page: currentPage,
+      genres: selectedGenres,
     });
-  }, [rawQuery, filters, sortBy, currentPage]);
+  }, [rawQuery, filters, sortBy, currentPage, selectedGenres]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await movieService(query, currentPage, filters, sortBy);
+      const res = await movieService(
+        query,
+        currentPage,
+        {
+          ...filters,
+          genres: selectedGenres,
+        },
+        sortBy
+      );
       setData(res);
     } catch (err) {
       console.error(err);
@@ -115,7 +192,7 @@ export default function ExplorePageContent() {
     } finally {
       setLoading(false);
     }
-  }, [query, currentPage, filters, sortBy]);
+  }, [query, currentPage, filters, sortBy, selectedGenres]);
 
   useEffect(() => {
     fetchData();
@@ -131,15 +208,18 @@ export default function ExplorePageContent() {
 
     if (sortBy !== "popularity.desc") params.set("sort", sortBy);
 
+    if (selectedGenres.length > 0) {
+      params.set("genres", selectedGenres.join(","));
+    }
+
     const newUrl = params.toString()
       ? `/explore?${params.toString()}`
       : "/explore";
     router.replace(newUrl, { scroll: false });
-  }, [query, currentPage, filters, sortBy, fetchData, router]);
+  }, [query, currentPage, filters, sortBy, selectedGenres, fetchData, router]);
 
   const handleSearch = (value: string) => {
     setRawQuery(value);
-    // При новом поиске сбрасываем на первую страницу
     if (value.trim() !== query) {
       setCurrentPage(1);
     }
@@ -152,11 +232,9 @@ export default function ExplorePageContent() {
         [filter]: !prev[filter],
       };
 
-      // Сбрасываем страницу только если выбранный фильтр изменился с активного на неактивный или наоборот
       const wasActive = prev[filter];
       const nowActive = !prev[filter];
 
-      // Если фильтр изменил свое состояние
       if (wasActive !== nowActive) {
         setCurrentPage(1);
       }
@@ -165,12 +243,23 @@ export default function ExplorePageContent() {
     });
   };
 
+  const handleGenreToggle = (genreId: number) => {
+    setSelectedGenres((prev) => {
+      if (prev.includes(genreId)) {
+        return prev.filter((id) => id !== genreId);
+      } else {
+        const newGenres = [...prev, genreId];
+        return newGenres.slice(-3);
+      }
+    });
+    setCurrentPage(1);
+  };
+
   const handleSortChange = (value: SortOption) => {
     setSortBy(value);
   };
 
   const handlePageChange = ({ selected }: { selected: number }) => {
-    // Ограничиваем максимальную страницу 500
     const newPage = Math.min(selected + 1, 500);
     setCurrentPage(newPage);
   };
@@ -182,11 +271,41 @@ export default function ExplorePageContent() {
       movies: true,
       tv: true,
       people: false,
+      genres: [],
     });
+    setSelectedGenres([]);
     setSortBy("popularity.desc");
   };
 
+  const handleClearGenres = () => {
+    setSelectedGenres([]);
+    setCurrentPage(1);
+  };
+
+  const toggleShowAllGenres = () => {
+    setShowAllGenres(!showAllGenres);
+  };
+
   const hasMediaSelected = filters.movies || filters.tv || filters.people;
+  const hasGenresSelected = selectedGenres.length > 0;
+
+  // Определяем доступные жанры в зависимости от выбранных фильтров
+  const availableGenres =
+    filters.movies && !filters.tv
+      ? movieGenres
+      : filters.tv && !filters.movies
+      ? tvGenres
+      : [...movieGenres, ...tvGenres];
+
+  // Убираем дубликаты жанров
+  const uniqueGenres = Array.from(
+    new Map(availableGenres.map((genre) => [genre.id, genre])).values()
+  );
+
+  // Жанры для отображения
+  const displayedGenres = showAllGenres
+    ? uniqueGenres
+    : uniqueGenres.slice(0, 8); // Первая строка - 8 жанров
 
   const sortOptions = [
     { value: "popularity.desc", label: "По популярности ⬇" },
@@ -201,10 +320,6 @@ export default function ExplorePageContent() {
     { value: "revenue.asc", label: "По кассовым сборам ⬆" },
   ];
 
-  const currentSortLabel =
-    sortOptions.find((o) => o.value === sortBy)?.label ||
-    "По популярности (убыв.)";
-
   return (
     <div className={styles.container}>
       <div className={styles.exploreContainer}>
@@ -213,36 +328,36 @@ export default function ExplorePageContent() {
           <div className={styles.controlsRow}>
             <div className={styles.searchSettings}>
               <div className={styles.filters}>
-                <div className={styles.filterHolder}>
-                  <input
-                    type="checkbox"
-                    id="movies"
-                    name="movies"
-                    checked={filters.movies}
-                    onChange={() => handleFilterChange("movies")}
-                  />
-                  <label htmlFor="movies">Фильмы</label>
-                </div>
-                <div className={styles.filterHolder}>
-                  <input
-                    type="checkbox"
-                    id="tv"
-                    name="tv"
-                    checked={filters.tv}
-                    onChange={() => handleFilterChange("tv")}
-                  />
-                  <label htmlFor="tv">Сериалы</label>
-                </div>
-                <div className={styles.filterHolder}>
-                  <input
-                    type="checkbox"
-                    id="people"
-                    name="people"
-                    checked={filters.people}
-                    onChange={() => handleFilterChange("people")}
-                  />
-                  <label htmlFor="people">Люди</label>
-                </div>
+                {[
+                  {
+                    id: "movies",
+                    label: "Фильмы",
+                    key: "movies" as keyof SearchFilters,
+                  },
+                  {
+                    id: "tv",
+                    label: "Сериалы",
+                    key: "tv" as keyof SearchFilters,
+                  },
+                  {
+                    id: "people",
+                    label: "Люди",
+                    key: "people" as keyof SearchFilters,
+                  },
+                ].map((filter) => (
+                  <button
+                    key={filter.id}
+                    className={
+                      filters[filter.key]
+                        ? `${styles.filterButton} ${styles.filterButtonActive}`
+                        : styles.filterButton
+                    }
+                    onClick={() => handleFilterChange(filter.key)}
+                    type="button"
+                  >
+                    {filter.label}
+                  </button>
+                ))}
               </div>
 
               <select
@@ -257,20 +372,89 @@ export default function ExplorePageContent() {
                   </option>
                 ))}
               </select>
+
               <button
                 onClick={handleClearFilters}
                 className={styles.clearButton}
+                title="Очистить все фильтры"
               >
                 <Image
                   src="/icons/clear.svg"
-                  alt="Описание изображения"
-                  height={30}
-                  width={30}
-                  className={styles.clearButtonImage}
+                  alt="Очистить"
+                  height={24}
+                  width={24}
                 />
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Секция выбора жанров */}
+        <div className={styles.genresSection}>
+          <div className={styles.genresHeader}>
+            <h3 className={styles.genresTitle}>Жанры</h3>
+            {hasGenresSelected && (
+              <button
+                onClick={handleClearGenres}
+                className={styles.clearGenresButton}
+              >
+                Очистить жанры
+              </button>
+            )}
+          </div>
+          {genresLoading ? (
+            <div className={styles.genresLoading}>Загрузка жанров...</div>
+          ) : (
+            <>
+              <div
+                className={`${styles.genresContainer} ${
+                  showAllGenres ? styles.genresExpanded : ""
+                }`}
+              >
+                {displayedGenres.map((genre) => (
+                  <button
+                    key={genre.id}
+                    className={`${styles.genreTag} ${
+                      selectedGenres.includes(genre.id)
+                        ? styles.genreTagActive
+                        : ""
+                    }`}
+                    onClick={() => handleGenreToggle(genre.id)}
+                  >
+                    {genre.name}
+                    {selectedGenres.includes(genre.id) && (
+                      <span className={styles.genreRemove}>×</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {uniqueGenres.length > 8 && (
+                <button
+                  className={styles.showMoreButton}
+                  onClick={toggleShowAllGenres}
+                >
+                  {showAllGenres
+                    ? "Скрыть"
+                    : `Показать все (${uniqueGenres.length})`}
+                </button>
+              )}
+            </>
+          )}
+
+          {hasGenresSelected && (
+            <div className={styles.selectedGenres}>
+              <span className={styles.selectedGenresLabel}>Выбрано:</span>
+              {selectedGenres.map((genreId) => {
+                const genre = uniqueGenres.find((g) => g.id === genreId);
+                return genre ? (
+                  <span key={genreId} className={styles.selectedGenreBadge}>
+                    {genre.name}
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
         </div>
 
         {loading && <div className={styles.loading}>Загрузка...</div>}
@@ -293,6 +477,19 @@ export default function ExplorePageContent() {
                   <strong>Страница:</strong> {currentPage} из{" "}
                   {Math.min(data.total_pages || 1, 500)}
                 </p>
+                {hasGenresSelected && (
+                  <p className={styles.infoItem}>
+                    <strong>Жанр:</strong>{" "}
+                    {selectedGenres
+                      .map((genreId) => {
+                        const genre = uniqueGenres.find(
+                          (g) => g.id === genreId
+                        );
+                        return genre ? genre.name : "";
+                      })
+                      .join(", ")}
+                  </p>
+                )}
               </div>
             </div>
 
