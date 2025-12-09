@@ -136,7 +136,7 @@
   
   .navLink {
     padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    font-size: 15px;
   }
   
   /* На мобильных зона наведения меньше */
@@ -160,7 +160,6 @@
   
   .navLink {
     padding: 10px 14px;
-    font-size: 12px;
   }
   
   .hoverZone {
@@ -172,7 +171,6 @@
 @media (max-width: 360px) {
   .navLink {
     padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
   }
   
   .navContainer {
