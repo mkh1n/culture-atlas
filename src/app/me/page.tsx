@@ -558,12 +558,6 @@ export default function ProfilePage() {
       <div className={styles.mediaGrid}>
         {filteredMedia.length === 0 ? (
           <div className={styles.emptyState}>
-            <Image
-              src="/icons/empty.svg"
-              alt="Empty"
-              width={100}
-              height={100}
-            />
             <h3>Ничего не найдено</h3>
             <p>Попробуйте изменить фильтры или добавить медиа в коллекцию</p>
           </div>
@@ -839,7 +833,7 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.dangerZone}>
-            <h4>Опасная зона</h4>
+            <h3>Опасная зона</h3>
             <div className={styles.dangerButtons}>
               <button
                 onClick={handleClearCache}

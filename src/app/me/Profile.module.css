@@ -56,10 +56,9 @@
 }
 
 .controlPanel {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+    margin-bottom: 32px;
 }
 
 @media (max-width: 1024px) {
@@ -74,10 +73,13 @@
   border-radius: 12px;
   padding: 20px;
   display: flex;
+  width: 100%;
   justify-content: space-between;
   flex-wrap: wrap;
 }
 .importExportBlock{
+      border-top: 2px solid var(--primary-color, #007bff);
+          padding-top: 16px;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -121,6 +123,9 @@
   color: white;
 }
 
+.importButton img, .exportButton img{
+  filter: invert(1);
+}
 .importButton:hover:not(:disabled) {
   background: var(--secondary-hover, #545b62);
 }
@@ -146,10 +151,12 @@
   flex-direction: column;
 }
 
-.dangerZone h4 {
-  margin: 0 0 12px 0;
+
+.dangerZone h3 {
+  margin: 0 0 16px 0;
   color: var(--danger-color, #dc3545);
-  font-size: 1rem;
+
+  font-size: 1.2rem;
 }
 
 .warningButton {
@@ -198,6 +205,7 @@
   border: none;
   background: transparent;
   font-size: 14px;
+  color: white;
   outline: none;
 }
 
