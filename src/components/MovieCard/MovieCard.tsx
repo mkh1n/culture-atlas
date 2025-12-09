@@ -76,7 +76,6 @@ export default function MovieCard({ movie }: MovieCardProps) {
 
   // Определяем тип и получаем данные в зависимости от типа
   const getTitle = () => {
-    console.log(movie)
     if (movie.media_type === "movie") return movie.title;
     if (movie.media_type === "tv") return movie.name;
     if (movie.media_type === "person") return movie.name;

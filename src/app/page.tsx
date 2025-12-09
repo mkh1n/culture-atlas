@@ -20,23 +20,19 @@ export default function HomePage() {
       setLoading(true);
       try {
         const [
-          trendingRes,
           popularMoviesRes,
           popularTVRes,
           topRatedRes,
         ] = await Promise.all([
-          fetch("/api/movies?page=1"),
           fetch("/api/movies?movies=true&tv=false&people=false&page=1"),
           fetch("/api/movies?movies=false&tv=true&people=false&page=1"),
           fetch("/api/movies?movies=true&tv=false&people=false&sort=vote_average.desc&page=1"),
         ]);
 
-        const trendingData = await trendingRes.json();
         const popularMoviesData = await popularMoviesRes.json();
         const popularTVData = await popularTVRes.json();
         const topRatedData = await topRatedRes.json();
 
-        setTrending(trendingData.results?.slice(0, 20) || []);
         setPopularMovies(popularMoviesData.results?.slice(0, 20) || []);
         setPopularTV(popularTVData.results?.slice(0, 20) || []);
         setTopRated(topRatedData.results?.slice(0, 20) || []);
@@ -75,12 +71,6 @@ export default function HomePage() {
         <div className={styles.loading}>Загрузка...</div>
       ) : (
         <>
-          <HorizontalMovieScroll
-            title="Сейчас в тренде"
-            movies={trending}
-            seeAllLink="/explore?sort=popularity.desc"
-            seeAllText="Все тренды →"
-          />
 
           <HorizontalMovieScroll
             title="Популярные фильмы"

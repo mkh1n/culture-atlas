@@ -6,8 +6,8 @@ export async function GET(request: NextRequest) {
   
   const query = searchParams.get('query') || '';
   const page = searchParams.get('page') || '1';
-  const movies = searchParams.get('movies') !== 'false'; // По умолчанию true
-  const tv = searchParams.get('tv') !== 'false'; // По умолчанию true
+  const movies = searchParams.get('movies') === 'true';
+  const tv = searchParams.get('tv') === 'true';
   const people = searchParams.get('people') === 'true';
   const sort = searchParams.get('sort') || 'popularity.desc';
   const genresParam = searchParams.get('genres') || '';
@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
   try {
     let url: string;
     let params = new URLSearchParams();
-    let currentMediaType = 'movie'; // Определяем тип контента для добавления media_type
     
     // Базовые параметры
     params.set('page', page);
@@ -25,27 +24,62 @@ export async function GET(request: NextRequest) {
     
     // Если есть поисковый запрос
     if (query) {
-      // Multi-search endpoint
-      const includeTypes = [];
-      if (movies) includeTypes.push('movie');
-      if (tv) includeTypes.push('tv');
-      if (people) includeTypes.push('person');
-      
-      // Multi search не поддерживает сортировку
-      url = `${proxyBase}/search/multi?query=${encodeURIComponent(query)}&${params.toString()}`;
+      // Для поиска людей используем отдельный endpoint
+      if (people && !movies && !tv) {
+        // Только люди
+        url = `${proxyBase}/search/person?query=${encodeURIComponent(query)}&${params.toString()}`;
+      } else {
+        // Multi-search для фильмов/сериалов
+        const includeTypes = [];
+        if (movies) includeTypes.push('movie');
+        if (tv) includeTypes.push('tv');
+        
+        // Multi search
+        url = `${proxyBase}/search/multi?query=${encodeURIComponent(query)}&${params.toString()}`;
+      }
     } else {
-      // Определяем тип контента
+      // Если нет поискового запроса (discover)
+      
+      // Проверяем, запрашиваются ли только люди
+      if (people && !movies && !tv) {
+        // Для discover людей нет отдельного endpoint, возвращаем пустой результат
+        // или используем /person/popular для популярных людей
+        url = `${proxyBase}/person/popular?${params.toString()}`;
+        
+        const res = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
+          },
+          next: { revalidate: 3600 },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch people: ${res.status}`);
+        }
+
+        const data = await res.json();
+        
+        // Добавляем media_type для людей
+        if (data.results && Array.isArray(data.results)) {
+          data.results = data.results.map((item: any) => ({
+            ...item,
+            media_type: 'person'
+          }));
+        }
+        
+        return Response.json(data);
+      }
+      
+      // Для фильмов и сериалов используем discover
       let mediaType = 'movie';
       if (tv && !movies) {
         mediaType = 'tv';
-        currentMediaType = 'tv';
       } else if (movies && !tv) {
         mediaType = 'movie';
-        currentMediaType = 'movie';
       } else {
         // Если оба типа или ни один - используем movie по умолчанию
         mediaType = 'movie';
-        currentMediaType = 'movie';
       }
       
       // Используем discover endpoint для лучшей сортировки и фильтрации
@@ -76,7 +110,7 @@ export async function GET(request: NextRequest) {
       url = `${url}?${params.toString()}`;
     }
 
-    console.log("Fetching movies from:", url);
+    console.log("Fetching from:", url);
 
     const res = await fetch(url, {
       headers: {
@@ -89,7 +123,7 @@ export async function GET(request: NextRequest) {
     if (!res.ok) {
       const errorText = await res.text();
       console.error("TMDB API error:", errorText);
-      throw new Error(`Failed to fetch movies: ${res.status}`);
+      throw new Error(`Failed to fetch data: ${res.status}`);
     }
 
     const data = await res.json();
@@ -103,18 +137,8 @@ export async function GET(request: NextRequest) {
         }
         
         // Определяем media_type по полям
-        let mediaType = currentMediaType;
+        let mediaType = 'movie';
         
-        // Если это search/multi, проверяем поля
-        if (!query) {
-          // Для discover результатов используем текущий media_type
-          return {
-            ...item,
-            media_type: mediaType
-          };
-        }
-        
-        // Для search/multi определяем по наличию полей
         if (item.title) {
           mediaType = 'movie';
         } else if (item.name && !item.known_for) {
@@ -135,7 +159,7 @@ export async function GET(request: NextRequest) {
     console.error("API Error:", error);
     return Response.json(
       {
-        error: "Failed to fetch movies",
+        error: "Failed to fetch data",
         message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
